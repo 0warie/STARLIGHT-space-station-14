@@ -1,0 +1,32 @@
+[game]
+hostname = "LocalDev"
+# Force the round to always load Bagel Station
+map = "StarlightBagel"
+
+[net]
+port = 1212
+
+[console]
+# Auto-elevate to full admin for localhost connections
+loginlocal = true
+
+[auth]
+# 0 = Optional, 1 = Required, 2 = Disabled
+mode = 2
+
+[hub]
+advertise = false
+
+[status]
+enabled = true
+
+
+[log]
+level = "Debug"
+
+
+[shuttle]
+grid_fill = true
+
+[replay]
+auto_record = true

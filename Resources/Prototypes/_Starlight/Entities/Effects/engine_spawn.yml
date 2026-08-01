@@ -1,0 +1,96 @@
+# The engine that grows out of a singularity/tesla generator after it has finished charging up.
+# The generator handles the sparking itself (see GeneratorChargeUp); these only cover the grow-in.
+# Their lifetimes have to fit inside the generator's sparkDuration, or the sparks stop mid-animation.
+
+- type: entity
+  id: EffectTeslaSpawnBall
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: TimedDespawn
+    lifetime: 1.5
+  - type: Sprite
+    drawdepth: Effects
+    noRot: true
+    sprite: Structures/Power/Generation/Tesla/energy_ball.rsi
+    layers:
+    - state: energy_ball_fast
+      shader: unshaded
+  # Grows into the size and light of the real TeslaEnergyBall it despawns into.
+  - type: GrowOnSpawn
+    duration: 1.5
+    startScale: 0.1,0.1
+    endScale: 1,1
+    startLightRadius: 1
+    endLightRadius: 10
+    startLightEnergy: 0.5
+    endLightEnergy: 16
+  - type: PointLight
+    enabled: true
+    radius: 1
+    energy: 0.5
+    color: "#4080FF"
+  # Deliberately much weaker than the real tesla so the show can't wreck the containment setup.
+  - type: LightningArcShooter
+    arcDepth: 1
+    maxLightningArc: 1
+    shootMinInterval: 0.3
+    shootMaxInterval: 0.6
+    shootRange: 5
+    lightningPrototype: Lightning
+  - type: EmitSoundOnSpawn
+    sound:
+      path: /Audio/Effects/tesla_consume.ogg
+      params:
+        variation: 0.3
+  # Bridges the gap between the charge-up and the real tesla's own ambience.
+  - type: AmbientSound
+    volume: -2
+    range: 8
+    sound:
+      path: /Audio/Effects/tesla.ogg
+  - type: SpawnOnDespawn
+    prototype: TeslaEnergyBall
+  - type: Tag
+    tags:
+    - HideContextMenu
+
+- type: entity
+  id: EffectSingularitySpawnCore
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: TimedDespawn
+    lifetime: 1.5
+  - type: Sprite
+    drawdepth: Effects
+    noRot: true
+    sprite: Structures/Power/Generation/Singularity/singularity_1.rsi
+    layers:
+    - state: singularity_1
+      shader: unshaded
+  - type: GrowOnSpawn
+    duration: 1.5
+    startScale: 0.1,0.1
+    endScale: 1,1
+    startLightRadius: 1
+    endLightRadius: 10
+    startLightEnergy: 0.5
+    endLightEnergy: 1
+  - type: PointLight
+    enabled: true
+    radius: 1
+    energy: 0.5
+  - type: EmitSoundOnSpawn
+    sound:
+      path: /Audio/Effects/tesla_consume.ogg
+      params:
+        variation: 0.3
+  - type: AmbientSound
+    volume: -2
+    range: 8
+    sound:
+      path: /Audio/Effects/tesla.ogg
+  - type: SpawnOnDespawn
+    prototype: Singularity
+  - type: Tag
+    tags:
+    - HideContextMenu

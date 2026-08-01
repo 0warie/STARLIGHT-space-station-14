@@ -1,3 +1,4 @@
+using Content.Server._Starlight.Singularity; // Starlight
 using Content.Server.ParticleAccelerator.Components;
 using Content.Shared.Popups;
 using Content.Shared.Singularity.Components;
@@ -17,6 +18,7 @@ public sealed partial class SingularityGeneratorSystem : SharedSingularityGenera
     [Dependency] private SharedTransformSystem _transformSystem = default!;
     [Dependency] private PhysicsSystem _physics = default!;
     [Dependency] private IGameTiming _timing = default!;
+    [Dependency] private GeneratorChargeUpSystem _chargeUp = default!; // Starlight
     #endregion Dependencies
 
     public override void Initialize()
@@ -55,6 +57,12 @@ public sealed partial class SingularityGeneratorSystem : SharedSingularityGenera
 
         // Other particle entities from the same wave could trigger additional teslas to spawn, so we must block the generator
         comp.Inert = true;
+
+        // Starlight Start - generators that charge up spark for a while and spawn the engine themselves
+        if (_chargeUp.TryStartChargeUp(uid))
+            return;
+        // Starlight End
+
         Spawn(comp.SpawnPrototype, Transform(uid).Coordinates);
     }
 

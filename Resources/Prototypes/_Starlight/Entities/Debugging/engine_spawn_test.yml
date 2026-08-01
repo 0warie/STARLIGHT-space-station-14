@@ -1,0 +1,20 @@
+# Debug generators that immediately hit their power threshold on spawn, so the engine spawn animation
+# can be tested without setting up a whole particle accelerator.
+
+- type: entity
+  id: TeslaGeneratorInstant
+  parent: TeslaGenerator
+  suffix: Instant, Debug
+  components:
+  - type: AutoStartGenerator
+  - type: SingularityGenerator
+    failsafeDisabled: true
+
+- type: entity
+  id: SingularityGeneratorInstant
+  parent: SingularityGenerator
+  suffix: Instant, Debug
+  components:
+  - type: AutoStartGenerator
+  - type: SingularityGenerator
+    failsafeDisabled: true

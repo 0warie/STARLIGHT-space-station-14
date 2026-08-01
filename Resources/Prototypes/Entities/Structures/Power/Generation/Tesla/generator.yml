@@ -7,9 +7,29 @@
   - type: Sprite
     noRot: true
     sprite: Structures/Power/Generation/Tesla/generator.rsi
-    state: icon
+    # Starlight Start - mapped so the charge-up can swap the generator's texture
+    layers:
+    - state: icon
+      map: [ "base" ]
+  - type: Appearance
+  - type: GenericVisualizer
+    visuals:
+      enum.SingularityGeneratorVisuals.Charging:
+        base:
+          # Placeholder: the grounding rod's electrified animation stands in until the generator gets
+          # its own sparking texture. Swap the state here once one exists.
+          True:
+            sprite: Structures/Power/Generation/Tesla/coil.rsi
+            state: grounding_rodhit
+          False:
+            sprite: Structures/Power/Generation/Tesla/generator.rsi
+            state: icon
+  - type: GeneratorChargeUp
+  # Starlight End
   - type: SingularityGenerator # TODO: rename the generator
-    spawnId: TeslaEnergyBall
+    # Starlight Start - the charge-up spawns a growing ball, which becomes the TeslaEnergyBall
+    spawnId: EffectTeslaSpawnBall
+    # Starlight End
   - type: InteractionOutline
   - type: Fixtures
     fixtures:

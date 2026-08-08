@@ -22,7 +22,7 @@ public sealed partial class GrowOnSpawnSystem : EntitySystem
     private void OnStartup(Entity<GrowOnSpawnComponent> ent, ref ComponentStartup args)
     {
         // Make sure the very first frame is already tiny instead of flashing at full size.
-        Apply(ent, ent.Comp.StartScale, ent.Comp.StartLightRadius, ent.Comp.StartLightEnergy);
+        Apply(ent, ent.Comp.StartScale, ent.Comp.StartLightRadius, ent.Comp.StartLightEnergy, ent.Comp.StartAlpha);
     }
 
     public override void FrameUpdate(float frameTime)
@@ -40,14 +40,19 @@ public sealed partial class GrowOnSpawnSystem : EntitySystem
             Apply((uid, comp),
                 Vector2.Lerp(comp.StartScale, comp.EndScale, eased),
                 float.Lerp(comp.StartLightRadius, comp.EndLightRadius, eased),
-                float.Lerp(comp.StartLightEnergy, comp.EndLightEnergy, eased));
+                float.Lerp(comp.StartLightEnergy, comp.EndLightEnergy, eased),
+                float.Lerp(comp.StartAlpha, comp.EndAlpha, Easings.OutCubic(fraction)));
         }
     }
 
-    private void Apply(Entity<GrowOnSpawnComponent> ent, Vector2 scale, float radius, float energy)
+    private void Apply(Entity<GrowOnSpawnComponent> ent, Vector2 scale, float radius, float energy, float alpha)
     {
         if (TryComp<SpriteComponent>(ent, out var sprite))
+        {
             _sprite.SetScale((ent.Owner, sprite), scale);
+            // Only the alpha is ours; the prototype's colour tint has to survive the ramp.
+            _sprite.SetColor((ent.Owner, sprite), sprite.Color.WithAlpha(alpha));
+        }
 
         if (!_light.TryGetLight(ent, out var light))
             return;

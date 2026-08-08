@@ -4,11 +4,14 @@
   description: A mesmerizing swirl of darkness that sucks in everything. If it's moving towards you, run.
   components:
   - type: Clickable
+  # Starlight edit: new drone loop. Starts as soon as the singularity exists, which is what you want
+  # for one spawned directly. The generator spawns SingularityFormed instead, which holds it off
+  # until the formation sound has finished.
   - type: AmbientSound
     volume: -4
     range: 14
     sound:
-      path: /Audio/Effects/singularity.ogg
+      path: /Audio/_Starlight/Effects/singularity_drone.ogg
   - type: Physics
     bodyType: Dynamic
     bodyStatus: InAir

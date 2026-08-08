@@ -41,6 +41,17 @@ public sealed partial class GrowOnSpawnComponent : Component
     public float EndLightEnergy = 16f;
 
     /// <summary>
+    /// Sprite opacity ramp, so the entity fades in instead of popping in at full opacity.
+    /// Eased separately from the scale: the scale is meant to stay small and then rush out, while
+    /// the fade wants to be mostly done by the time the thing is big enough to notice.
+    /// </summary>
+    [DataField]
+    public float StartAlpha = 0f;
+
+    [DataField]
+    public float EndAlpha = 1f;
+
+    /// <summary>
     /// How far into the growth we are, in seconds.
     /// </summary>
     [ViewVariables]

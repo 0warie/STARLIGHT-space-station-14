@@ -58,8 +58,10 @@
   id: EffectSingularitySpawnCore
   categories: [ HideSpawnMenu ]
   components:
+  # 2.63s is where singularity_form.ogg hits its impact: it sits around -14 dB up to 2.610s and jumps
+  # to nearly 0 dBFS by 2.640s. The grow-in has to finish exactly there so the singularity lands on it.
   - type: TimedDespawn
-    lifetime: 1.5
+    lifetime: 2.63
   - type: Sprite
     drawdepth: Effects
     noRot: true
@@ -68,7 +70,7 @@
     - state: singularity_1
       shader: unshaded
   - type: GrowOnSpawn
-    duration: 1.5
+    duration: 2.63
     startScale: 0.1,0.1
     endScale: 1,1
     startLightRadius: 1
@@ -79,18 +81,30 @@
     enabled: true
     radius: 1
     energy: 0.5
+  # Starts with the grow-in, so the sound and the animation begin together.
+  # Positional, because the sound outlasts this effect's 1.5s lifetime and would otherwise be cut off
+  # when the despawn takes its parented audio stream with it.
   - type: EmitSoundOnSpawn
+    positional: true
     sound:
-      path: /Audio/Effects/tesla_consume.ogg
-      params:
-        variation: 0.3
-  - type: AmbientSound
-    volume: -2
-    range: 8
-    sound:
-      path: /Audio/Effects/tesla.ogg
+      path: /Audio/_Starlight/Effects/singularity_form.ogg
   - type: SpawnOnDespawn
-    prototype: Singularity
+    prototype: SingularityFormed
   - type: Tag
     tags:
     - HideContextMenu
+
+# The singularity as the generator produces it. Identical to the normal one except that its drone
+# waits out the rest of the formation sound, which is still playing when it spawns.
+# Kept separate so an admin- or map-spawned Singularity still starts droning immediately.
+- type: entity
+  id: SingularityFormed
+  parent: Singularity
+  suffix: Formed
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: AmbientSound
+    enabled: false
+  # singularity_form.ogg runs 6.641s and this spawns 2.63s into it, so 4.01s of it is left to play.
+  - type: DelayedAmbience
+    delay: 4.01

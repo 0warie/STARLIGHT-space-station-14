@@ -3,6 +3,11 @@
   copyright: 'Darkrell'
   source: "https://github.com/ss14Starlight/space-station-14"
 
+- files: ["singularity_drone.ogg","singularity_form.ogg"]
+  license: "CC-BY-SA-3.0"
+  copyright: 'Starlight'
+  source: "https://github.com/ss14Starlight/space-station-14"
+
 - files: ["howl.ogg"]
   license: "CC-BY-SA-3.0"
   copyright: 'by ParadiseSS13'

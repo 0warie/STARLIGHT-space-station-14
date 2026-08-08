@@ -52,10 +52,10 @@ public sealed partial class SingularityComponent : Component
     /// </summary>
     [DataField("ambientSound")]
     [ViewVariables(VVAccess.ReadOnly)]
-    public SoundSpecifier? AmbientSound = new SoundPathSpecifier(
-        "/Audio/Effects/singularity_form.ogg",
-        AudioParams.Default.WithVolume(5).WithLoop(true).WithMaxDistance(20f)
-    );
+    // Starlight edit: was a second looped stream layered on top of the AmbientSound component in the
+    // Singularity prototype, which is where the drone actually lives. Two copies of the new drone
+    // would phase against each other, so this channel is off and the prototype owns the loop.
+    public SoundSpecifier? AmbientSound = null;
 
     /// <summary>
     /// The audio stream that plays the sound specified by <see cref="AmbientSound"/> on loop.

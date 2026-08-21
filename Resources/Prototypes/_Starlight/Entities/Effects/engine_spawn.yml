@@ -82,8 +82,8 @@
     radius: 1
     energy: 0.5
   # Starts with the grow-in, so the sound and the animation begin together.
-  # Positional, because the sound outlasts this effect's 1.5s lifetime and would otherwise be cut off
-  # when the despawn takes its parented audio stream with it.
+  # Positional, because the 6.64s sound outlasts this effect's 2.63s lifetime and would otherwise be
+  # cut off when the despawn takes its parented audio stream with it.
   - type: EmitSoundOnSpawn
     positional: true
     sound:
@@ -106,5 +106,9 @@
   - type: AmbientSound
     enabled: false
   # singularity_form.ogg runs 6.641s and this spawns 2.63s into it, so 4.01s of it is left to play.
+  # Deliberately short of that: the client only samples ambience every ambience.cooldown (0.1s) and the
+  # enabled flag still has to replicate, so aiming for the exact end leaves a beat of silence where the
+  # form sound stops dead at -15 dBFS. Coming in 0.26s early hides that under the tail instead, which
+  # works because the two are at the same level and near enough the same spectrum to read as one sound.
   - type: DelayedAmbience
-    delay: 4.01
+    delay: 3.75

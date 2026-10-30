@@ -138,7 +138,6 @@ namespace Content.Shared.Input
         // Starlight Begin
         public static readonly BoundKeyFunction Jump = "Jump";
         public static readonly BoundKeyFunction LatchStruggle = "LatchStruggle";
-        public static readonly BoundKeyFunction RemoveHotbarAction = "RemoveHotbarAction";
         // Starlight End
     }
 }

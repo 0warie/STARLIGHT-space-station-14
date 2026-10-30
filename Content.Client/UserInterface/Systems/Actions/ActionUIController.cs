@@ -543,9 +543,12 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
 
     private void OnActionPressed(GUIBoundKeyEventArgs args, ActionButton button)
     {
-        if (args.Function == ContentKeyFunctions.RemoveHotbarAction) // Starlight
+        if (args.Function == EngineKeyFunctions.UIRightClick)
         {
-            SetAction(button, null);
+            // Starlight-start: open a menu instead of removing straight away, unless quick remove is on
+            // SetAction(button, null);
+            OnBarRightClick(button);
+            // Starlight-end
             args.Handle();
             return;
         }
@@ -647,7 +650,7 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
     {
         _dragShadow.Texture = null;
         _dragShadow.Visible = false;
-        HideInsertMarker(); // Starlight
+        OnBarDragEnded(); // Starlight
     }
 
     private void UnloadGui()
@@ -787,6 +790,7 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
         _container?.ClearActionData();
         QueueWindowUpdate();
         StopTargeting();
+        CloseBarMenu(); // Starlight
     }
 
     private void LoadDefaultActions()

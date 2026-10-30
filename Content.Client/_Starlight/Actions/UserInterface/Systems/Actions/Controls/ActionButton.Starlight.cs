@@ -24,6 +24,10 @@ public sealed partial class ActionButton
 
     public void ShowInsertMarker(ActionInsertSide side, bool vertical)
     {
+        var after = side == ActionInsertSide.After;
+        var hAlign = vertical ? HAlignment.Stretch : after ? HAlignment.Right : HAlignment.Left;
+        var vAlign = !vertical ? VAlignment.Stretch : after ? VAlignment.Bottom : VAlignment.Top;
+
         if (_insertMarker == null)
         {
             _insertMarker = new PanelContainer
@@ -36,9 +40,8 @@ public sealed partial class ActionButton
         }
 
         // Pinned to the edge on the bar's axis, stretched across the other.
-        var after = side == ActionInsertSide.After;
-        _insertMarker.HorizontalAlignment = vertical ? HAlignment.Stretch : after ? HAlignment.Right : HAlignment.Left;
-        _insertMarker.VerticalAlignment = !vertical ? VAlignment.Stretch : after ? VAlignment.Bottom : VAlignment.Top;
+        _insertMarker.HorizontalAlignment = hAlign;
+        _insertMarker.VerticalAlignment = vAlign;
 
         _insertMarker.Visible = true;
     }

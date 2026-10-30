@@ -1,7 +1,6 @@
 ui-options-function-open-m-help = Open mentor help
 ui-options-function-jump = Jump
 ui-options-function-latch-struggle = Struggle (while latched)
-ui-options-function-remove-hotbar-action = Remove action from hotbar
 ui-escape-connect-discord = Link Discord
 server-info-connect-discord-button = Link Discord
 ui-escape-connect-steam = Link Steam
@@ -68,6 +67,9 @@ ui-options-menu-bar-key-hints = Keybind hints
 ui-options-menu-bar-key-hints-always = Always
 ui-options-menu-bar-key-hints-hold = While Alt is held
 ui-options-menu-bar-key-hints-never = Never
+ui-options-action-bar-label = Action Bar
+ui-options-action-bar-quick-remove = Quick remove
+ui-options-action-bar-quick-remove-tooltip = Right-clicking an action on the hotbar removes it straight away instead of opening a menu.
 ui-options-bar-placement-pinned = Pinned
 ui-options-bar-placement-auto = Auto
 ui-options-bar-placement-menu = In menu

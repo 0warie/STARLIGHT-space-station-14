@@ -45,6 +45,13 @@
                     </BoxContainer>
                 </PanelContainer>
 
+                <Label StyleClasses="LabelKeyText" Text="{Loc 'ui-options-action-bar-label'}" Margin="0 0 0 4" />
+                <PanelContainer StyleClasses="InsetPanel" Margin="0 0 0 12">
+                    <BoxContainer Orientation="Vertical" Margin="10 6" SeparationOverride="4">
+                        <CheckBox Name="ActionBarQuickRemoveCheckBox" Text="{Loc 'ui-options-action-bar-quick-remove'}" ToolTip="{Loc 'ui-options-action-bar-quick-remove-tooltip'}" />
+                    </BoxContainer>
+                </PanelContainer>
+
                 <Label StyleClasses="LabelKeyText" Text="{Loc 'ui-options-ui-ranged-sight'}" Margin="0 0 0 4" />
                 <PanelContainer StyleClasses="InsetPanel">
                     <BoxContainer Margin="10 6" Orientation="Vertical" SeparationOverride="4">

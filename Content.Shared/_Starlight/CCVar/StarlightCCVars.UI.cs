@@ -22,6 +22,12 @@ public sealed partial class StarlightCCVars
         CVarDef.Create("ui.hand_labeler_saved_labels", "", CVar.CLIENTONLY | CVar.ARCHIVE);
 
     /// <summary>
+    /// If true, right-clicking an action on the hotbar removes it straight away instead of opening a menu.
+    /// </summary>
+    public static readonly CVarDef<bool> ActionBarQuickRemove =
+        CVarDef.Create("ui.action_bar_quick_remove", false, CVar.CLIENTONLY | CVar.ARCHIVE);
+
+    /// <summary>
     /// The theme of the interface.
     /// </summary>
     public static readonly CVarDef<string> StyleTheme =

@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Numerics;
 using Content.Client.Actions;
 using Content.Client._Starlight.UserInterface.Systems.Actions.Controls;
 using Content.Client.ContextMenu.UI;
@@ -9,7 +8,6 @@ using Content.Shared.Actions.Components;
 using Robust.Client.UserInterface;
 using Robust.Client.UserInterface.Controls;
 using Robust.Shared.Configuration;
-using Robust.Shared.Utility;
 
 // ReSharper disable CheckNamespace
 namespace Content.Client.UserInterface.Systems.Actions;
@@ -32,15 +30,7 @@ public sealed partial class ActionUIController
     [Dependency] private IConfigurationManager _cfg = default!;
     [Dependency] private ContextMenuUIController _contextMenu = default!;
 
-    /// <summary>
-    /// Right-click menu for hotbar actions. Created on first use.
-    /// </summary>
-    private ContextMenuPopup? _barMenu;
-
-    /// <summary>
-    /// The action the right-click menu was opened for.
-    /// </summary>
-    private EntityUid? _barMenuAction;
+    private ActionBarMenu? _barMenu;
 
     /// <summary>
     /// The bar button currently showing the insert marker while dragging, if any.
@@ -170,7 +160,8 @@ public sealed partial class ActionUIController
     /// </summary>
     private bool IsBarVertical()
     {
-        return _container?.LimitedDimension == Dimension.Row;
+        // Read from the actual layout; the grid's limit settings don't match it until the HUD first sizes the bar.
+        return _container is { ChildCount: > 1 } bar && bar.GetChild(1).Position.Y > bar.GetChild(0).Position.Y;
     }
 
     /// <summary>
@@ -190,6 +181,13 @@ public sealed partial class ActionUIController
     /// </summary>
     private void UpdateInsertMarker()
     {
+        // An action granted mid-drag can land in the hidden slot; give it back and hide the new spare instead.
+        if (_hiddenEndSlot is { Action: not null })
+        {
+            _hiddenEndSlot.Visible = true;
+            _hiddenEndSlot = null;
+        }
+
         // A bar action frees its own slot when moved, so the spare slot at the end would only mislead.
         if (_hiddenEndSlot == null && _menuDragHelper.Dragged?.Parent == _container
             && _container?.ChildCount > 0 && _container.GetChild(_container.ChildCount - 1) is ActionButton { Action: null } endSlot)
@@ -246,71 +244,43 @@ public sealed partial class ActionUIController
     }
 
     /// <summary>
-    /// Right-clicking a hotbar action removes it straight away with quick remove on, otherwise opens a menu for it.
+    /// Right-click on the hotbar. Removes straight away with quick remove on, and always for empty slots so gaps
+    /// still close like upstream; otherwise opens the menu.
     /// </summary>
     private void OnBarRightClick(ActionButton button)
     {
-        // Checked first so empty slots still get cleared like before, collapsing gaps in the bar.
-        if (_cfg.GetCVar(StarlightCCVars.ActionBarQuickRemove))
+        if (button.Action is not { } action || _cfg.GetCVar(StarlightCCVars.ActionBarQuickRemove))
         {
             SetAction(button, null);
             return;
         }
 
-        if (button.Action is not { } action)
-            return;
-
         if (_barMenu is not { Disposed: false })
-            _barMenu = new ContextMenuPopup(_contextMenu, null);
+        {
+            _barMenu = new ActionBarMenu(_contextMenu);
+            _barMenu.OnChoice += OnBarMenuChoice;
+        }
 
-        // Rebuilt each time so the arrows match the bar's current direction.
-        var vertical = IsBarVertical();
-        _barMenu.MenuBody.RemoveAllChildren();
-        AddBarMenuItem("ui-action-bar-menu-move-start", a => _actions.Insert(0, a),
-            $"/Textures/_Starlight/Interface/VerbIcons/{(vertical ? "move_top" : "move_left")}.png");
-        AddBarMenuItem("ui-action-bar-menu-move-end", a => _actions.Add(a),
-            $"/Textures/_Starlight/Interface/VerbIcons/{(vertical ? "move_bottom" : "move_right")}.png");
-        AddBarMenuItem("ui-action-bar-menu-remove", _ => { }, "/Textures/Interface/VerbIcons/delete_transparent.svg.192dpi.png");
-
-        _barMenuAction = action;
-        _barMenu.Open(UIBox2.FromDimensions(UIManager.MousePositionScaled.Position, new Vector2(1, 1)));
+        _barMenu.Open(action, IsBarVertical());
     }
 
-    /// <summary>
-    /// Closes the right-click menu, e.g. when the bar's actions are unlinked so it doesn't linger over the lobby
-    /// or act on a previous body's actions.
-    /// </summary>
+    private void OnBarMenuChoice(EntityUid action, ActionBarMenuChoice choice)
+    {
+        // Looked up again since the bar may have changed while the menu was open.
+        if (_actionsSystem == null || !_actions.Remove(action))
+            return;
+
+        if (choice == ActionBarMenuChoice.MoveStart)
+            _actions.Insert(0, action);
+        else if (choice == ActionBarMenuChoice.MoveEnd)
+            _actions.Add(action);
+
+        _userArranged = true;
+        _container?.SetActionData(_actionsSystem, _actions.ToArray());
+    }
+
     private void CloseBarMenu()
     {
         _barMenu?.Close();
-        _barMenuAction = null;
-    }
-
-    /// <summary>
-    /// Adds an entry to the right-click menu. <paramref name="place"/> puts the action back into the bar after it
-    /// has been taken out, so doing nothing removes it.
-    /// </summary>
-    private void AddBarMenuItem(string locId, Action<EntityUid> place, string? iconPath = null)
-    {
-        var icon = iconPath != null ? _spriteSystem.Frame0(new SpriteSpecifier.Texture(new ResPath(iconPath))) : null;
-        var element = new ActionBarMenuElement(Loc.GetString(locId), icon);
-        element.OnPressed += _ => ApplyBarMenuItem(place);
-        _barMenu!.MenuBody.AddChild(element);
-    }
-
-    /// <summary>
-    /// Takes the action the right-click menu was opened for out of the bar, wherever it has moved to since,
-    /// then lets <paramref name="place"/> put it back.
-    /// </summary>
-    private void ApplyBarMenuItem(Action<EntityUid> place)
-    {
-        _barMenu?.Close();
-
-        if (_barMenuAction is not { } action || _actionsSystem == null || !_actions.Remove(action))
-            return;
-
-        place(action);
-        _userArranged = true;
-        _container?.SetActionData(_actionsSystem, _actions.ToArray());
     }
 }

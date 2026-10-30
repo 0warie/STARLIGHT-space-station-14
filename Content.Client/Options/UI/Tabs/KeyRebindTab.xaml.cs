@@ -196,7 +196,6 @@ namespace Content.Client.Options.UI.Tabs
             AddButton(ContentKeyFunctions.MoveStoredItem);
             AddButton(ContentKeyFunctions.RotateStoredItem);
             AddButton(ContentKeyFunctions.SaveItemLocation);
-            AddButton(ContentKeyFunctions.RemoveHotbarAction); // Starlight
 
             AddHeader("ui-options-header-interaction-adv");
             AddButton(ContentKeyFunctions.SmartEquipBackpack);
@@ -257,6 +256,7 @@ namespace Content.Client.Options.UI.Tabs
             {
                 AddButton(boundKey);
             }
+            AddButton(ContentKeyFunctions.RemoveHotbarAction); // Starlight
 
             AddHeader("ui-options-header-shuttle");
             AddButton(ContentKeyFunctions.ShuttleStrafeUp);
@@ -460,6 +460,10 @@ namespace Content.Client.Options.UI.Tabs
             }
 
             var function = _currentlyRebinding.KeyControl.Function;
+            // Starlight-start: an empty slot has no binding to copy allowSubCombs from, so use the function's other one
+            var existingBindings = _inputManager.GetKeyBindings(function);
+            var sourceBinding = _currentlyRebinding.Binding ?? (existingBindings.Count > 0 ? existingBindings[0] : null);
+            // Starlight-end
             var bindType = KeyBindingType.State;
             if (ToggleFunctions.Contains(function))
             {
@@ -478,7 +482,8 @@ namespace Content.Client.Options.UI.Tabs
                 CanFocus = key == Keyboard.Key.MouseLeft
                            || key == Keyboard.Key.MouseRight
                            || key == Keyboard.Key.MouseMiddle,
-                CanRepeat = false
+                CanRepeat = false,
+                AllowSubCombs = sourceBinding?.AllowSubCombs ?? false, // Starlight-edit: keep allowSubCombs when rebinding
             };
 
             _inputManager.RegisterBinding(registration);

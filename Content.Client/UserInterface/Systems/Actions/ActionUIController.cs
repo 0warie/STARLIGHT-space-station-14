@@ -477,16 +477,20 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
             return;
         }
 
-        EntityUid? swapAction = null;
-        var currentlyHovered = UIManager.MouseGetControl(_input.MouseScreenPosition);
-        if (currentlyHovered is ActionButton button)
-        {
-            swapAction = button.Action;
-            SetAction(button, action, false);
-        }
+        // Starlight-start: Removed, swapped with the hovered slot and removed the action when dropped off the bar
+        // EntityUid? swapAction = null;
+        // var currentlyHovered = UIManager.MouseGetControl(_input.MouseScreenPosition);
+        // if (currentlyHovered is ActionButton button)
+        // {
+        //     swapAction = button.Action;
+        //     SetAction(button, action, false);
+        // }
+        //
+        // if (dragged.Parent is ActionButtonContainer)
+        //     SetAction(dragged, swapAction, false);
+        // Starlight-end
 
-        if (dragged.Parent is ActionButtonContainer)
-            SetAction(dragged, swapAction, false);
+        DropDraggedAction(dragged, action); // Starlight
 
         if (_actionsSystem != null)
             _container?.SetActionData(_actionsSystem, _actions.ToArray());
@@ -635,6 +639,7 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
     {
         LayoutContainer.SetPosition(_dragShadow, UIManager.MousePositionScaled.Position - new Vector2(32, 32));
         _dragShadow.Visible = true;
+        UpdateInsertMarker(); // Starlight
         return true;
     }
 
@@ -642,6 +647,7 @@ public sealed partial class ActionUIController : UIController, IOnStateChanged<G
     {
         _dragShadow.Texture = null;
         _dragShadow.Visible = false;
+        HideInsertMarker(); // Starlight
     }
 
     private void UnloadGui()

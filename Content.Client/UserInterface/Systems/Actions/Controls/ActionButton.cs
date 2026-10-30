@@ -340,15 +340,18 @@ public sealed partial class ActionButton : Control, IEntityControl
 
         Label.Visible = Action != null;
         UpdateIcons();
+        DrawModeChanged(); // Starlight
     }
 
     public void ClearData()
     {
         Action = null;
+        _depressed = false; // Starlight
         Cooldown.Visible = false;
         Cooldown.Progress = 1;
         Label.Visible = false;
         UpdateIcons();
+        DrawModeChanged(); // Starlight
     }
 
     protected override void FrameUpdate(FrameEventArgs args)

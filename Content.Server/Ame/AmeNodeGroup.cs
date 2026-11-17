@@ -4,6 +4,7 @@ using Content.Server.Ame.EntitySystems;
 using Content.Server.Chat.Managers;
 using Content.Server.Explosion.EntitySystems;
 using Content.Server.NodeContainer.NodeGroups;
+using Content.Shared.Ame.Components;
 using Content.Shared.NodeContainer;
 using Content.Shared.NodeContainer.NodeGroups;
 using Robust.Server.GameObjects;
@@ -104,11 +105,18 @@ public sealed partial class AmeNodeGroup : BaseNodeGroup
     {
         var injectionAmount = 0;
         var injecting = false;
+        var overloading = false; // Starlight-edit
 
         if (_entMan.TryGetComponent<AmeControllerComponent>(_masterController, out var controller))
         {
             injectionAmount = controller.InjectionAmount;
             injecting = controller.Injecting;
+            // Starlight-start: same check as InjectFuel, on the amount actually injected (capped by fuel left)
+            var fuel = _entMan.TryGetComponent<AmeFuelContainerComponent>(controller.FuelSlot.Item, out var fuelContainer)
+                ? fuelContainer.FuelAmount
+                : 0;
+            overloading = Math.Min(injectionAmount, fuel) > SafeFuelLimit;
+            // Starlight-end
         }
 
         var injectionStrength = CoreCount > 0 ? injectionAmount / CoreCount : 0;
@@ -116,7 +124,7 @@ public sealed partial class AmeNodeGroup : BaseNodeGroup
         var coreSystem = _entMan.System<AmeShieldingSystem>();
         foreach (var coreUid in _cores)
         {
-            coreSystem.UpdateCoreVisuals(coreUid, injectionStrength, injecting);
+            coreSystem.UpdateCoreVisuals(coreUid, injectionStrength, injecting, overloading); // Starlight-edit
         }
     }
 

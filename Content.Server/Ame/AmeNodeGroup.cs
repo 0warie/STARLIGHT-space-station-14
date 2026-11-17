@@ -4,7 +4,6 @@ using Content.Server.Ame.EntitySystems;
 using Content.Server.Chat.Managers;
 using Content.Server.Explosion.EntitySystems;
 using Content.Server.NodeContainer.NodeGroups;
-using Content.Shared.Ame.Components;
 using Content.Shared.NodeContainer;
 using Content.Shared.NodeContainer.NodeGroups;
 using Robust.Server.GameObjects;
@@ -41,6 +40,11 @@ public sealed partial class AmeNodeGroup : BaseNodeGroup
     public int CoreCount => _cores.Count;
 
     public int SafeFuelLimit => CoreCount * 2; // STARLIGHT
+
+    // Starlight-start: last InjectFuel call, so core visuals show what was actually injected
+    private int _lastInjected;
+    private bool _lastOverloading;
+    // Starlight-end
 
     public override void LoadNodes(List<Node> groupNodes)
     {
@@ -103,35 +107,33 @@ public sealed partial class AmeNodeGroup : BaseNodeGroup
 
     public void UpdateCoreVisuals()
     {
-        var injectionAmount = 0;
         var injecting = false;
-        var overloading = false; // Starlight-edit
 
         if (_entMan.TryGetComponent<AmeControllerComponent>(_masterController, out var controller))
-        {
-            injectionAmount = controller.InjectionAmount;
             injecting = controller.Injecting;
-            // Starlight-start: same check as InjectFuel, on the amount actually injected (capped by fuel left)
-            var fuel = _entMan.TryGetComponent<AmeFuelContainerComponent>(controller.FuelSlot.Item, out var fuelContainer)
-                ? fuelContainer.FuelAmount
-                : 0;
-            overloading = Math.Min(injectionAmount, fuel) > SafeFuelLimit;
-            // Starlight-end
+
+        // Starlight-start: visuals show the last real injection, not the setting
+        if (!injecting)
+        {
+            _lastInjected = 0;
+            _lastOverloading = false;
         }
 
-        var injectionStrength = CoreCount > 0 ? injectionAmount / CoreCount : 0;
+        var injectionStrength = CoreCount > 0 ? _lastInjected / CoreCount : 0;
+        // Starlight-end
 
         var coreSystem = _entMan.System<AmeShieldingSystem>();
         foreach (var coreUid in _cores)
         {
-            coreSystem.UpdateCoreVisuals(coreUid, injectionStrength, injecting, overloading); // Starlight-edit
+            coreSystem.UpdateCoreVisuals(coreUid, injectionStrength, injecting, _lastOverloading); // Starlight-edit
         }
     }
 
     /* STARLIGHT taking control of AME injection Code */
     public float InjectFuel(int fuel, out bool overloading)
     {
-        overloading = false;
+        overloading = _lastOverloading = false;
+        _lastInjected = Math.Max(fuel, 0);
 
         //don't make power if no cores and/or no injection
         var shieldQuery = _entMan.GetEntityQuery<AmeShieldComponent>();
@@ -160,7 +162,7 @@ public sealed partial class AmeNodeGroup : BaseNodeGroup
             stabilityAdjust = -(overloadVsSizeResult / CoreCount);
             stabilityAdjust -= fuzz; // fuzz the values a tiny bit.
 
-            overloading = true;
+            overloading = _lastOverloading = true;
         }
 
         var integrityCheck = 100;
